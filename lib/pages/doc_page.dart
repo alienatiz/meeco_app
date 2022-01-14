@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:meeco_app/backend/board_item.dart';
 import 'package:meeco_app/backend/doc_provider.dart';
 import 'package:provider/provider.dart';
@@ -34,21 +35,13 @@ class _DocPageState extends State<DocPage> {
     } else if (!docProvider.loading && doc == null) {
       Future.microtask(() => docProvider.fetch());
     } else {
-      return Text(doc ?? 'body');
-    }
-
-    /*
-    if (!docProvider.loading && doc != null) {
-      print('isn\'t print this....?');
-      return Text(doc ?? 'body');
-
       return ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           Text(
-            item?.title ?? '제목',
+            doc!.title,
             style: const TextStyle(
-              fontSize: 30.0,
+              fontSize: 25.0,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -56,7 +49,15 @@ class _DocPageState extends State<DocPage> {
           Row(
             children: [
               Text(
-                item?.author ?? '작성자',
+                doc.author.nickname,
+                style: const TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.black45,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                doc.time,
                 style: const TextStyle(
                   fontSize: 16.0,
                   color: Colors.black45,
@@ -64,8 +65,28 @@ class _DocPageState extends State<DocPage> {
               ),
             ],
           ),
+          Html(
+            data: doc.body,
+            style: {
+              'p': Style(
+                fontSize: const FontSize(16.0),
+              ),
+              "body": Style(
+                margin: EdgeInsets.zero,
+                padding: EdgeInsets.zero,
+              ),
+            },
+          ),
         ],
       );
+    }
+
+    /*
+    if (!docProvider.loading && doc != null) {
+      print('isn\'t print this....?');
+      return Text(doc ?? 'body');
+
+      return
 
 
     } else {
