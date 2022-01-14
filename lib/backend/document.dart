@@ -2,6 +2,7 @@ class Document {
   String time;
 
   String title;
+  Author author;
   String body;
 
   int viewNum;
@@ -11,9 +12,10 @@ class Document {
   List<Comment>? comments;
 
   Document(
-    this.title,
-    this.body,
     this.time,
+    this.title,
+    this.author,
+    this.body,
     this.viewNum,
     this.voteNum,
     this.commentNum, {
