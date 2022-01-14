@@ -147,7 +147,7 @@ class ApiProvider extends ChangeNotifier {
         Author(
           int.parse(header.querySelector('a.member')!.attributes['class']!.split(' ')[0].substring(7)),
           header.querySelector('a.member')!.text,
-          profileUrl: e.querySelector('img.bPf-img')!.attributes['src'],
+          profileUrl: e.querySelector('img.bPf-img')?.attributes['src'],
         ),
         e.querySelector('div.cmt-el-body > div.xe_content')!.innerHtml,
         int.parse(e.querySelector('div.cmt-el-body > div.cmt-vote > span.num')?.text ?? '0'),
@@ -161,7 +161,7 @@ class ApiProvider extends ChangeNotifier {
       Author(
         int.parse(userData.attributes['class']!.substring(7)),
         userData.text,
-        profileUrl: header.querySelector('img.bPf-img')!.attributes['src'],
+        profileUrl: header.querySelector('img.bPf-img')?.attributes['src'],
       ),
       parsedDoc
           .querySelector('div.atc-wrap > div[class^="document"]')!
