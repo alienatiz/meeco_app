@@ -11,6 +11,8 @@ class DocProvider extends ChangeNotifier {
   bool loading = false;
   Document? doc;
 
+  bool isVoted = false;
+
 
 
   fetch() async {
@@ -22,5 +24,8 @@ class DocProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  vote() {}
+  vote() {
+    isVoted = !isVoted;
+    notifyListeners();
+  }
 }
