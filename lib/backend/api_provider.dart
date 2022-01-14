@@ -165,7 +165,7 @@ class ApiProvider extends ChangeNotifier {
       ),
       parsedDoc
           .querySelector('div.atc-wrap > div[class^="document"]')!
-          .innerHtml,
+          .innerHtml.replaceAll('img src="//', 'img src="https://'),
       int.parse(infoUnderTitle.querySelector('li > span.num')!.text),
       int.parse(
           parsedDoc.querySelector('div.atc-wrap a.atc-vote-bt > span')!.text),
