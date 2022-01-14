@@ -9,19 +9,16 @@ class DocProvider extends ChangeNotifier {
 
   String? url;
   bool loading = false;
-  String? doc;
+  Document? doc;
 
 
 
   fetch() async {
     loading = true;
-    print('start loading: $loading');
     notifyListeners();
 
     doc = await api.fetchDoc(url);
     loading = false;
-    print('loaded: $loading');
-
     notifyListeners();
   }
 
