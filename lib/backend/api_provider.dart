@@ -132,20 +132,23 @@ class ApiProvider extends ChangeNotifier {
     final document = await _get(url!);
     final parsedDoc = parse(document.body).querySelector('article.bAtc')!;
     final header = parsedDoc.querySelector('header.atc-hd')!;
+    final authorSrl = header.querySelector('a[class^="member"]')!.attributes['class']!.split(' ')[0];
     final infoUnderTitle = header.querySelector('ul.ldd-title-under')!;
     final userData = infoUnderTitle.querySelector(
       'header.atc-hd > ul.ldd-title-under > li > a[class^="member_"]',
     )!;
+
     final comments = parsedDoc
         .querySelectorAll('section.bCmt > div.cmt-list > article')
         .map((e) {
       final header = e.querySelector('header.author')!;
       final isReply = header.querySelector('span.parent') != null;
+      final authorSrl = header.querySelector('a[class^="member"]')!.attributes['class']!.split(' ')[0];
       return Comment(
         isReply,
         header.querySelector('div.date')!.text,
         Author(
-          int.parse(header.querySelector('a.member')!.attributes['class']!.split(' ')[0].substring(7)),
+          authorSrl == 'member_0' || authorSrl == 'member' ? 0 : int.parse(authorSrl.substring(7)),
           header.querySelector('a.member')!.text,
           profileUrl: e.querySelector('img.bPf-img')?.attributes['src'],
         ),
@@ -159,7 +162,7 @@ class ApiProvider extends ChangeNotifier {
       infoUnderTitle.querySelector('li.num')!.text,
       header.querySelector('h1.atc-title > a')!.text,
       Author(
-        int.parse(userData.attributes['class']!.substring(7)),
+        authorSrl == 'member_0' ? 0 : int.parse(authorSrl.substring(7)),
         userData.text,
         profileUrl: header.querySelector('img.bPf-img')?.attributes['src'],
       ),
@@ -169,7 +172,7 @@ class ApiProvider extends ChangeNotifier {
       int.parse(infoUnderTitle.querySelector('li > span.num')!.text),
       int.parse(
           parsedDoc.querySelector('div.atc-wrap a.atc-vote-bt > span')!.text),
-      int.parse(parsedDoc.querySelector('section.bCmt > div > span')!.text),
+      int.parse(parsedDoc.querySelector('section.bCmt > div > span')?.text ?? '0'),
       comments: comments,
     );
   }
