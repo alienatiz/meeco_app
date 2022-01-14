@@ -49,13 +49,13 @@ class Comment {
 
 class Author {
   int memberSrl;
-  String author;
+  String nickname;
   String? profileUrl;
   String? signature;
 
   Author(
     this.memberSrl,
-    this.author, {
+    this.nickname, {
     this.profileUrl,
     this.signature,
   });
