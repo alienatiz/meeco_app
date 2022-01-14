@@ -153,7 +153,7 @@ class ApiProvider extends ChangeNotifier {
           profileUrl: e.querySelector('img.bPf-img')?.attributes['src'],
         ),
         e.querySelector('div.cmt-el-body > div.xe_content')!.innerHtml,
-        int.parse(e.querySelector('div.cmt-el-body > div.cmt-vote > span.num')?.text ?? '0'),
+        int.parse(e.querySelector('div.cmt-el-body > div.cmt-vote > a > span.num')?.text ?? '0'),
         replyTo: isReply ? header.querySelector('span.parent')!.text : null,
       );
     }).toList();
