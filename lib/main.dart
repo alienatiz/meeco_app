@@ -5,6 +5,7 @@ import 'package:meeco_app/backend/board_provider.dart';
 import 'package:meeco_app/backend/api_provider.dart';
 import 'package:meeco_app/backend/doc_provider.dart';
 import 'package:meeco_app/pages/doc_page.dart';
+import 'package:meeco_app/pages/menu_page.dart';
 import 'package:provider/provider.dart';
 
 import 'package:meeco_app/pages/main_page.dart';
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
                   DocProvider(Provider.of<ApiProvider>(context, listen: false)),
               child: const DocPage(),
             ),
+        '/menu': (_) => const MenuPage(),
       },
     );
   }

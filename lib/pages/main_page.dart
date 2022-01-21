@@ -22,6 +22,9 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {
+          Navigator.pushReplacementNamed(context, '/menu');
+        },),
         iconTheme: const IconThemeData(color: Colors.black),
         backgroundColor: const Color(0x78bfbfbf),
         // const Color(0xff4c5c84),
