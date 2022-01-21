@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meeco_app/backend/api_provider.dart';
-import 'package:meeco_app/backend/document.dart';
+import 'package:meeco_app/backend/data_model/document.dart';
 
 class DocProvider extends ChangeNotifier {
   ApiProvider api;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meeco_app/backend/board_item.dart';
+import 'package:meeco_app/backend/data_model/board_item.dart';
 import 'package:meeco_app/widgets/icon_with_data.dart';
 
 class BoardItemView extends StatelessWidget {

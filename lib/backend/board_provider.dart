@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meeco_app/backend/board_item.dart';
+import 'package:meeco_app/backend/data_model/board_item.dart';
 import 'package:meeco_app/backend/api_provider.dart';
 
 class BoardProvider extends ChangeNotifier {
