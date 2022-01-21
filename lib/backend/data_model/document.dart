@@ -1,5 +1,9 @@
+import 'package:meeco_app/backend/data_model/category.dart';
+
 class Document {
   String time;
+
+  Category category;
 
   String title;
   Author author;
@@ -13,6 +17,7 @@ class Document {
 
   Document(
     this.time,
+    this.category,
     this.title,
     this.author,
     this.body,
@@ -60,3 +65,4 @@ class Author {
     this.signature,
   });
 }
+

@@ -1,8 +1,11 @@
+import 'package:meeco_app/backend/data_model/category.dart';
+
 class BoardItem {
   String url;
 
   bool isNotice;
 
+  Category category;
   String title;
   String author;
 
@@ -13,6 +16,7 @@ class BoardItem {
 
   BoardItem(
       this.url,
+      this.category,
       this.title,
       this.author,
       this.time,
