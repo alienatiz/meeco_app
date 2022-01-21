@@ -2,8 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
-import 'package:meeco_app/backend/board_item.dart';
-import 'package:meeco_app/backend/document.dart';
+import 'package:meeco_app/backend/data_model/board_item.dart';
+import 'package:meeco_app/backend/data_model/category.dart';
+import 'package:meeco_app/backend/data_model/document.dart';
 
 // import 'dart:math';
 
@@ -93,11 +94,15 @@ class ApiProvider extends ChangeNotifier {
       var commentNum = e.querySelector("td.title > a.num")?.text.trim();
       commentNum = commentNum?.substring(1, commentNum.length - 1);
 
-      final title = e.querySelector('td.title > a');
+      final title = e.querySelector('td.title');
       return BoardItem(
         title?.querySelector("span")?.parentNode?.attributes['href'] ??
             title?.attributes['href'] ??
             '/$board',
+        Category(
+          title?.querySelector('a.boardname')?.text ?? '--',
+          title?.querySelector('a.boardname')?.attributes['href'] ?? '--',
+        ),
         title?.querySelector('span')?.text.trim() ?? title?.text.trim() ?? '제목',
         e.querySelector('td.author > a')?.text ?? '작성자',
         numData[1].text,
@@ -145,6 +150,15 @@ class ApiProvider extends ChangeNotifier {
           ?.split(' ')[0];
 
       final cmtBody = e.querySelector('div.cmt-el-body');
+      final sticker =
+          cmtBody?.querySelector('div.xe_content > a[style*="img.meeco.kr"]');
+      if (sticker != null) {
+        sticker.innerHtml = '<img class="sticker" src="' +
+            RegExp('https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9(@:%_\\+.~#?&//=]*)')
+                .stringMatch(sticker.attributes['style']!)! +
+            '"></img>';
+      }
+
       return Comment(
         isReply,
         commentHeader?.querySelector('div.date')?.text ?? '--',
@@ -155,7 +169,13 @@ class ApiProvider extends ChangeNotifier {
           commentHeader?.querySelector('a.member')?.text ?? '작성자',
           profileUrl: e.querySelector('img.bPf-img')?.attributes['src'],
         ),
-        cmtBody?.querySelector('div.xe_content')?.innerHtml ?? 'body',
+        sticker != null
+            ? sticker.innerHtml
+            : cmtBody
+                    ?.querySelector('div.xe_content')
+                    ?.innerHtml
+                    .replaceAll('img src="//', 'img src="https://') ??
+                'body',
         int.parse(
             cmtBody?.querySelector('div.cmt-vote > a > span.num')?.text ?? '0'),
         replyTo: commentHeader?.querySelector('span.parent')?.text,
@@ -164,6 +184,7 @@ class ApiProvider extends ChangeNotifier {
 
     return Document(
       infoUnderTitle?.querySelector('li.num')?.text ?? '--',
+      Category('a', 'aaa'),
       header?.querySelector('h1.atc-title > a')?.text ?? '제목',
       Author(
         authorSrl == 'member_0' ? 0 : int.parse(authorSrl?.substring(7) ?? '0'),
@@ -231,5 +252,4 @@ class ApiProvider extends ChangeNotifier {
   _replaceCookieCommaToSemicolon(String? strCookie) {
     return strCookie?.split(RegExp(r'(?<=)(,)(?=[^;]+?=)')).join(';');
   }
-
 }
