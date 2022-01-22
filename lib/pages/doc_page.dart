@@ -203,7 +203,7 @@ class CommentView extends StatelessWidget {
       children: [
         Container(
           padding: EdgeInsets.fromLTRB(
-              (comment.isReply ? 24.0 : 8.0), 8.0, 8.0, 8.0),
+              (comment.isReply ? 48.0 : 8.0), 8.0, 8.0, 8.0),
           decoration: BoxDecoration(
             border: Border.all(color: const Color(0xFFEFEFEF)),
             borderRadius: const BorderRadius.all(
