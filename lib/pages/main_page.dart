@@ -17,21 +17,29 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     final apiProvider = Provider.of<ApiProvider>(context);
-    final boardProvider = Provider.of<BoardProvider>(context);
+    final boardProvider = Provider.of<BoardProvider>(context, listen: false);
+    final Map<String, String>? arg =
+        ModalRoute.of(context)?.settings.arguments != null
+            ? ModalRoute.of(context)?.settings.arguments as Map<String, String>
+            : {'title': 'IT+', 'url': 'ITplus'};
+    final url = arg!['url']!;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {
-          Navigator.pushReplacementNamed(context, '/menu');
-        },),
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/menu');
+          },
+        ),
         iconTheme: const IconThemeData(color: Colors.black),
         backgroundColor: const Color(0x78bfbfbf),
         // const Color(0xff4c5c84),
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          '미니기기 코리아',
+        title: Text(
+          arg['title']!,
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w700,
@@ -44,46 +52,24 @@ class _MainPageState extends State<MainPage> {
           ),
         ),
         actions: [
-          if (!apiProvider.isLoggedIn)
-            TextButton(
-                onPressed: () {
-                  apiProvider.logIn('editionc18', 'somang0307@');
-                },
-                child: const Text(
-                  '로그인',
-                  style: TextStyle(color: Colors.black),
-                ))
+          IconButton(
+              onPressed: () {}, icon: Icon(Icons.account_circle_outlined))
+          // if (!apiProvider.isLoggedIn)
+          //   TextButton(
+          //       onPressed: () {
+          //         apiProvider.logIn('editionc18', 'somang0307@');
+          //       },
+          //       child: const Text(
+          //         '로그인',
+          //         style: TextStyle(color: Colors.black),
+          //       ))
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            TextButton(
-              child: const Text('IT+'),
-              onPressed: () {
-                Future.microtask(() => boardProvider.refresh('ITplus'));
-              },
-            ),
-            TextButton(
-              child: const Text('자유+'),
-              onPressed: () {
-                Future.microtask(() => boardProvider.refresh('FreePlus'));
-              },
-            ),
-            TextButton(
-              child: const Text('가격+'),
-              onPressed: () {
-                Future.microtask(() => boardProvider.refresh('PricePlus'));
-              },
-            ),
-          ],
-        ),
-      ),
-      body: _renderListView(),
+      body: _renderListView(url),
     );
   }
 
-  _renderListView() {
+  _renderListView(String url) {
     final boardProvider = Provider.of<BoardProvider>(context);
     final items = boardProvider.items;
 
