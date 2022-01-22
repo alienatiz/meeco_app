@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:meeco_app/backend/board_provider.dart';
 import 'package:meeco_app/widgets/board_item_view.dart';
-import 'package:meeco_app/backend/api_provider.dart';
 import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
@@ -16,8 +15,6 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<ApiProvider>(context);
-    final boardProvider = Provider.of<BoardProvider>(context, listen: false);
     final Map<String, String>? arg =
         ModalRoute.of(context)?.settings.arguments != null
             ? ModalRoute.of(context)?.settings.arguments as Map<String, String>
@@ -40,7 +37,7 @@ class _MainPageState extends State<MainPage> {
         centerTitle: true,
         title: Text(
           arg['title']!,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w700,
           ),
@@ -53,7 +50,7 @@ class _MainPageState extends State<MainPage> {
         ),
         actions: [
           IconButton(
-              onPressed: () {}, icon: Icon(Icons.account_circle_outlined))
+              onPressed: () {}, icon: const Icon(Icons.account_circle_outlined))
           // if (!apiProvider.isLoggedIn)
           //   TextButton(
           //       onPressed: () {
@@ -77,6 +74,7 @@ class _MainPageState extends State<MainPage> {
       return const Center(child: CircularProgressIndicator());
     } else {
       return ListView.builder(
+          physics: const BouncingScrollPhysics(),
           itemCount: items.length + 1,
           itemBuilder: (_, index) {
             if (index < items.length) {
