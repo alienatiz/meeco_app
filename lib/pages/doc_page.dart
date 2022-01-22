@@ -56,6 +56,7 @@ class _DocPageState extends State<DocPage> {
       Future.microtask(() => docProvider.fetch());
     } else {
       return ListView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(16.0),
         children: [
           Text(
