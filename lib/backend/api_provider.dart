@@ -40,7 +40,14 @@ class ApiProvider extends ChangeNotifier {
     }
   }
 
-  // Future<void> logOut() async {}
+  Future<void> logOut() async {
+    final logOutAction =
+        await _get('/index.php?act=dispMemberLogout&mid=index');
+    if (logOutAction.statusCode == 200) {
+      isLoggedIn = false;
+      notifyListeners();
+    }
+  }
 
   Future<bool> attend() async {
     if (isLoggedIn) {
@@ -224,6 +231,19 @@ class ApiProvider extends ChangeNotifier {
     });
 
     return insertAction.statusCode;
+  }
+
+  Future<String> getProfileImageUrl() async {
+    if (isLoggedIn) {
+      final myPage =
+          await _get('https://meeco.kr/index.php?act=dispMemberInfo');
+      return parse(myPage.body)
+              .querySelector('div.profile-img > img')
+              ?.attributes['src'] ??
+          'https://meeco.kr/layouts/colorize02_layout/images/profile.png';
+    } else {
+      return 'https://meeco.kr/layouts/colorize02_layout/images/profile.png';
+    }
   }
 
   String? _getCsrfToken(http.Response page) {
