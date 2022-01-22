@@ -69,21 +69,38 @@ class _DocPageState extends State<DocPage> {
           const SizedBox(height: 16),
           Row(
             children: [
-              Text(
-                doc.author.nickname,
-                style: const TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black45,
+              SizedBox(
+                width: 40.0,
+                height: 40.0,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(300.0),
+                  ),
+                  child: Image.network(doc.author.profileUrl ??
+                      'https://meeco.kr/layouts/colorize02_layout/images/profile.png'),
                 ),
               ),
-              const Spacer(),
-              Text(
-                doc.time,
-                style: const TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black45,
-                ),
-              ),
+              const SizedBox(width: 8.0),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    doc.author.nickname,
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black45,
+                    ),
+                  ),
+                  const SizedBox(height: 4.0),
+                  Text(
+                    doc.time,
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black45,
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
           Html(
