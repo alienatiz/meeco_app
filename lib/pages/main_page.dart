@@ -5,6 +5,7 @@ import 'package:meeco_app/backend/api_provider.dart';
 import 'package:meeco_app/backend/board_provider.dart';
 import 'package:meeco_app/widgets/board_item_view.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -14,8 +15,8 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final TextEditingController idController = TextEditingController();
-  final TextEditingController pwController = TextEditingController();
+  final RefreshController refreshController =
+      RefreshController(initialRefresh: false);
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +27,6 @@ class _MainPageState extends State<MainPage> {
     final url = arg!['url']!;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
       appBar: _buildAppBar(arg['title']!),
       body: _renderListView(url),
     );
@@ -39,134 +39,25 @@ class _MainPageState extends State<MainPage> {
     if (boardProvider.loading && items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     } else {
-      return ListView.builder(
-          physics: const BouncingScrollPhysics(),
-          itemCount: items.length + 1,
-          itemBuilder: (_, index) {
-            if (index < items.length) {
-              return BoardItemView(item: items[index]);
-            }
+      return SmartRefresher(
+        controller: refreshController,
+        onRefresh: _onRefresh,
+        child: ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            itemCount: items.length + 1,
+            itemBuilder: (_, index) {
+              if (index < items.length) {
+                return BoardItemView(item: items[index]);
+              }
 
-            if (!boardProvider.loading) {
-              Future.microtask(() => boardProvider.fetchItems());
-            }
+              if (!boardProvider.loading) {
+                Future.microtask(() => boardProvider.fetchItems());
+              }
 
-            return const Center(child: CircularProgressIndicator());
-          });
+              return const Center(child: CircularProgressIndicator());
+            }),
+      );
     }
-  }
-
-  Widget buildLoginForm(context) {
-    final apiProvider = Provider.of<ApiProvider>(context);
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(32.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '로그인',
-            style: TextStyle(
-              fontSize: 30.0,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: Column(
-              children: [
-                TextField(
-                  controller: idController,
-                  cursorColor: Colors.black,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    letterSpacing: 0.7,
-                  ),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    hintText: 'ID',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(40.0),
-                      borderSide: const BorderSide(color: Colors.black54),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.black),
-                      borderRadius: BorderRadius.circular(40.0),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: pwController,
-                  cursorColor: Colors.black,
-                  obscureText: true,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    letterSpacing: 0.7,
-                  ),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    hintText: '비밀번호',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(40.0),
-                      borderSide: const BorderSide(color: Colors.black54),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.black),
-                      borderRadius: BorderRadius.circular(40.0),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 45,
-                  child: TextButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          const Color(0xff4c5c84),
-                        ),
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(40.0),
-                            side: const BorderSide(color: Color(0xff4c5c84)),
-                          ),
-                        ),
-                      ),
-                      onPressed: () async {
-                        await apiProvider.logIn(
-                            idController.text, pwController.text);
-                        if (apiProvider.isLoggedIn) {
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: const Text(
-                        '로그인',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      )),
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   _buildAppBar(String title) {
@@ -197,28 +88,19 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
       actions: [
-        !apiProvider.isLoggedIn
-            ? IconButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(24.0),
-                        topRight: Radius.circular(24.0),
-                      )),
-                      context: context,
-                      builder: buildLoginForm);
-                },
-                icon: const Icon(Icons.login),
-              )
-            : IconButton(
-                icon: const Icon(Icons.account_circle_outlined),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/user');
-                },
-              ),
+        IconButton(
+          icon: const Icon(Icons.account_circle_outlined),
+          onPressed: () {
+            Navigator.pushNamed(context, '/user');
+          },
+        ),
       ],
     );
+  }
+
+  _onRefresh() async {
+    final boardProvider = Provider.of<BoardProvider>(context, listen: false);
+    await boardProvider.refresh();
+    refreshController.refreshCompleted();
   }
 }
