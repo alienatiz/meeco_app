@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -9,12 +11,16 @@ import 'package:meeco_app/backend/data_model/document.dart';
 // import 'dart:math';
 
 class ApiProvider extends ChangeNotifier {
-  String? _cookie;
+  final CookieJar _cookieJar = CookieJar();
   bool isLoggedIn = false;
   static const String logInUrl = '/index.php?mid=index&act=dispMemberLoginForm';
+  bool loading = false;
 
   Future<void> logIn(String id, String pw) async {
     if (!isLoggedIn) {
+      loading = true;
+      notifyListeners();
+
       final logInPage = await _get(logInUrl);
       final csrf = _getCsrfToken(logInPage);
 
@@ -36,6 +42,7 @@ class ApiProvider extends ChangeNotifier {
         },
       );
       isLoggedIn = logInAction.statusCode == 302;
+      loading = false;
       notifyListeners();
     }
   }
@@ -71,23 +78,26 @@ class ApiProvider extends ChangeNotifier {
     }
   }
 
-  voteDoc(String url) async {
+  Future<int?> voteDoc(String url) async {
     var docPage = await _get(url);
+    final csrf = _getCsrfToken(docPage);
     var urlList = url.split('/');
-    var response = await _post(url, body: {
-      'target_srl': urlList[2],
+    var response = await _post('/', body: {
+      'target_srl': urlList[2].toString(),
       'cur_mid': urlList[1],
       'mid': urlList[1],
       'module': 'document',
       'act': 'procDocumentVoteUp',
       '_rx_ajax_compat': 'XMLRPC',
-      '_rx_csrf_token': _getCsrfToken(docPage),
+      '_rx_csrf_token': csrf,
       'vid': '',
     }, headers: {
-      'x-csrf-token': _getCsrfToken(docPage) ?? '',
-      'x-requested-with': 'XMLHttpRequest',
+      'x-csrf-token': csrf ?? '',
+      // 'x-requested-with': 'XMLHttpRequest',
     });
 
+    var jsonBody = jsonDecode(response.body);
+    if (jsonBody['error'] == 0) return jsonBody['voted_count'];
     return response.statusCode;
   }
 
@@ -102,10 +112,19 @@ class ApiProvider extends ChangeNotifier {
       commentNum = commentNum?.substring(1, commentNum.length - 1);
 
       final title = e.querySelector('td.title');
+
+      var url = title?.querySelector("span")?.parentNode?.attributes['href'] ??
+          title?.querySelector('a')?.attributes['href'];
+
+      if (double.tryParse(url?.split('/').last ?? '') == null) {
+        url = '/' +
+            RegExp('mid=[A-Za-z]+').stringMatch(url!)!.substring(4) +
+            '/' +
+            RegExp('document_srl=[0-9]+').stringMatch(url)!.substring(13);
+      }
+
       return BoardItem(
-        title?.querySelector("span")?.parentNode?.attributes['href'] ??
-            title?.attributes['href'] ??
-            '/$board',
+        url ?? '',
         Category(
           title?.querySelector('a.boardname')?.text ?? '--',
           title?.querySelector('a.boardname')?.attributes['href'] ?? '--',
@@ -192,6 +211,7 @@ class ApiProvider extends ChangeNotifier {
     return Document(
       infoUnderTitle?.querySelector('li.num')?.text ?? '--',
       Category('a', 'aaa'),
+      parsedDoc?.querySelector('div.atc-vote-bts > a.up.up_on') != null,
       header?.querySelector('h1.atc-title > a')?.text ?? '제목',
       Author(
         authorSrl == 'member_0' ? 0 : int.parse(authorSrl?.substring(7) ?? '0'),
@@ -254,22 +274,35 @@ class ApiProvider extends ChangeNotifier {
 
   Future<http.Response> _get(String url, {Map<String, String>? headers}) async {
     var getPage = await http.get(Uri.parse("https://meeco.kr" + url),
-        headers: {'cookie': _cookie ?? '', ...?headers});
-    _cookie = _replaceCookieCommaToSemicolon(
-        getPage.headers['set-cookie'] ?? _cookie);
+        headers: {'cookie': _cookieJar.toString(), ...?headers});
+    _cookieJar.saveCookies(getPage.headers['set-cookie']);
     return getPage;
   }
 
   Future<http.Response> _post(String url,
       {Map<String, String>? headers, Object? body}) async {
     var postPage = await http.post(Uri.parse("https://meeco.kr" + url),
-        headers: {'cookie': _cookie ?? '', ...?headers}, body: body);
-    _cookie = _replaceCookieCommaToSemicolon(
-        postPage.headers['set-cookie'] ?? _cookie);
+        headers: {'cookie': _cookieJar.toString(), ...?headers}, body: body);
+    _cookieJar.saveCookies(postPage.headers['set-cookie']);
     return postPage;
   }
+}
 
-  _replaceCookieCommaToSemicolon(String? strCookie) {
-    return strCookie?.split(RegExp(r'(?<=)(,)(?=[^;]+?=)')).join(';');
+class CookieJar {
+  Map<String, String>? cookies = {};
+
+  saveCookies(String? rawCookies) {
+    rawCookies?.split(RegExp(r'(?<=)(,)(?=[^;]+?=)')).forEach((e) {
+      var cookie = e.split(';')[0].split('=');
+      cookies![cookie[0]] = cookie[1];
+    });
+    cookies?.removeWhere((k, v) => v == 'deleted');
+  }
+
+  @override
+  String toString() {
+    List cookieToString = [];
+    cookies?.forEach((k, v) => cookieToString.add('$k=$v'));
+    return cookieToString.join(';');
   }
 }
