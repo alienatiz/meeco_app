@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meeco_app/backend/api_provider.dart';
 import 'package:meeco_app/backend/board_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -32,12 +33,14 @@ class _MenuPageState extends State<MenuPage> {
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.account_circle_outlined,
               color: Colors.black,
             ),
-            onPressed: () {},
-          ),
+            onPressed: () {
+              Navigator.pushNamed(context, '/user');
+            },
+          )
         ],
       ),
       body: ListView(
@@ -144,7 +147,8 @@ class _BoardViewState extends State<BoardView> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Provider.of<BoardProvider>(context, listen: false).refresh(widget.url);
+        Provider.of<BoardProvider>(context, listen: false)
+            .switchBoard(widget.url);
         Navigator.pushReplacementNamed(
           context,
           '/main',
