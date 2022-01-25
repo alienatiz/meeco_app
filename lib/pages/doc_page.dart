@@ -2,9 +2,11 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:meeco_app/backend/api_provider.dart';
 import 'package:meeco_app/backend/data_model/board_item.dart';
 import 'package:meeco_app/backend/doc_provider.dart';
 import 'package:meeco_app/backend/data_model/document.dart';
+import 'package:meeco_app/widgets/log_in_form.dart';
 import 'package:provider/provider.dart';
 
 class DocPage extends StatefulWidget {
@@ -156,9 +158,25 @@ class _VoteButtonState extends State<VoteButton> {
   @override
   Widget build(BuildContext context) {
     final docProvider = Provider.of<DocProvider>(context);
+    final apiProvider = Provider.of<ApiProvider>(context);
     final isVoted = docProvider.isVoted;
     return GestureDetector(
-      onTap: () => Future.microtask(() => docProvider.vote()),
+      onTap: () async {
+        if (!apiProvider.isLoggedIn) {
+          showModalBottomSheet(
+            isScrollControlled: true,
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24.0),
+              topRight: Radius.circular(24.0),
+            )),
+            context: context,
+            builder: (_) => const LogInForm(),
+          );
+        } else {
+          return Future.microtask(() => docProvider.vote());
+        }
+      },
       child: Container(
           width: 84,
           padding: const EdgeInsets.all(8.0),
@@ -180,7 +198,7 @@ class _VoteButtonState extends State<VoteButton> {
               ),
               const SizedBox(width: 4),
               Text(
-                widget.voteNum.toString(),
+                docProvider.voteNum.toString(),
                 style: TextStyle(
                   fontSize: 20,
                   color: isVoted ? Colors.white : Colors.red,
@@ -237,7 +255,14 @@ class CommentView extends StatelessWidget {
                           children: [
                             Text(comment.author.nickname),
                             const Spacer(),
-                            Text(comment.voteNum.toString()),
+                            Text(
+                              comment.voteNum.toString(),
+                              style: TextStyle(
+                                color: comment.voteNum >= 4
+                                    ? Colors.red
+                                    : Colors.black,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8.0),

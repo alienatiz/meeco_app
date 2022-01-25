@@ -12,6 +12,7 @@ class DocProvider extends ChangeNotifier {
   Document? doc;
 
   bool isVoted = false;
+  int voteNum = 0;
 
 
 
@@ -20,12 +21,17 @@ class DocProvider extends ChangeNotifier {
     notifyListeners();
 
     doc = await api.fetchDoc(url);
+    voteNum = doc!.voteNum;
+    isVoted = doc!.isVoted;
     loading = false;
     notifyListeners();
   }
 
-  vote() {
+  vote() async {
     isVoted = !isVoted;
+    notifyListeners();
+
+    voteNum = await api.voteDoc(url!) ?? voteNum - 1;
     notifyListeners();
   }
 }

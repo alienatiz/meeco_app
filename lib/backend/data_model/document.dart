@@ -5,6 +5,7 @@ class Document {
 
   Category category;
 
+  bool isVoted;
   String title;
   Author author;
   String body;
@@ -18,6 +19,7 @@ class Document {
   Document(
     this.time,
     this.category,
+    this.isVoted,
     this.title,
     this.author,
     this.body,
