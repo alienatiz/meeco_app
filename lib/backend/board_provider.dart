@@ -17,12 +17,14 @@ class BoardProvider extends ChangeNotifier {
     notifyListeners();
 
     items.addAll(await api.fetchBoard(currentBoard, currentPage));
+    var urlList = items.map((e) => e.url).toSet();
+    items.retainWhere((x) => urlList.remove(x.url));
     currentPage++;
     loading = false;
     notifyListeners();
   }
 
-  refresh(String board) async {
+  switchBoard(String board) async {
     if (currentBoard != board) {
       loading = true;
       notifyListeners();
@@ -32,5 +34,14 @@ class BoardProvider extends ChangeNotifier {
       items = [];
       await fetchItems();
     }
+  }
+
+  refresh() async {
+    loading = true;
+    notifyListeners();
+
+    currentPage = 1;
+    items = [];
+    await fetchItems();
   }
 }
