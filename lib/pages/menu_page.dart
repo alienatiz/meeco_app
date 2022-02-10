@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:meeco_app/backend/api_provider.dart';
 import 'package:meeco_app/backend/board_provider.dart';
+import 'package:meeco_app/constants.dart';
 import 'package:provider/provider.dart';
 
 class MenuPage extends StatefulWidget {
@@ -15,28 +15,21 @@ class _MenuPageState extends State<MenuPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
+        iconTheme: Theme.of(context).iconTheme,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           '메뉴',
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-            color: Colors.black,
-          ),
+          style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.favorite_border,
-              color: Colors.black,
-            ),
+            icon: const Icon(Icons.favorite_border),
             onPressed: () {},
           ),
           IconButton(
-            icon: Icon(
-              Icons.account_circle_outlined,
-              color: Colors.black,
-            ),
+            icon: const Icon(Icons.account_circle_outlined),
             onPressed: () {
               Navigator.pushNamed(context, '/user');
             },
@@ -45,85 +38,20 @@ class _MenuPageState extends State<MenuPage> {
       ),
       body: ListView(
         physics: const BouncingScrollPhysics(),
-        children: [
-          Row(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width / 2.0,
-                padding: const EdgeInsets.fromLTRB(8, 8, 4, 4),
-                child: Container(
-                  height: 100,
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xffefefef),
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: const [
-                      CircleAvatar(
-                        backgroundColor: Colors.red,
-                        radius: 16,
-                        child: Icon(
-                          Icons.calendar_today_outlined,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      ),
-                      Spacer(),
-                      Text(
-                        '출석',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 24.0,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width / 2.0,
-                padding: const EdgeInsets.fromLTRB(4, 8, 8, 4),
-                child: Container(
-                  height: 100,
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xffefefef),
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: const [
-                      CircleAvatar(
-                        backgroundColor: Colors.teal,
-                        radius: 16,
-                        child: Icon(
-                          Icons.storefront,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      Spacer(),
-                      Text(
-                        '스티커',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 24.0,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ],
+        children: const [
+          // MenuItem(
+          //   icon: Icons.calendar_today_outlined,
+          //   title: '출석',
+          //   color: voteColorLight,
+          // ),
+          // MenuItem(icon: Icons.storefront, title: '스티커'),
+          MenuItem(icon: Icons.devices_other, title: 'IT+', url: 'ITplus'),
+          MenuItem(
+            icon: Icons.free_breakfast_outlined,
+            title: '자유+',
+            url: 'FreePlus',
           ),
-          const BoardView('IT+', 'ITplus', ['소식', '미니', '음향', '리뷰', '대형']),
-          const BoardView('자유+', 'FreePlus', ['자유', '유머', '갤러리', '대형']),
-          const BoardView('가격+', 'PricePlus', ['특가', '장터', '홍보']),
-          const SizedBox(height: 4),
+          MenuItem(icon: Icons.sell_outlined, title: '가격+', url: 'PricePlus'),
         ],
       ),
     );
@@ -159,11 +87,11 @@ class _BoardViewState extends State<BoardView> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         child: Container(
           padding: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
-            color: const Color(0xffefefef),
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: Column(
@@ -193,7 +121,7 @@ class _BoardViewState extends State<BoardView> {
                   itemBuilder: (context, index) {
                     return Container(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: _buildClip(widget.subBoard[index]),
+                      child: CategoryChip(widget.subBoard[index]),
                     );
                   },
                 ),
@@ -204,8 +132,15 @@ class _BoardViewState extends State<BoardView> {
       ),
     );
   }
+}
 
-  _buildClip(String title) {
+class CategoryChip extends StatelessWidget {
+  final String title;
+
+  const CategoryChip(this.title, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       height: 24,
       decoration: BoxDecoration(
@@ -218,6 +153,60 @@ class _BoardViewState extends State<BoardView> {
         style: const TextStyle(
           color: Colors.black,
           fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class MenuItem extends StatelessWidget {
+  final String url;
+  final IconData icon;
+  final String title;
+  final Color? color;
+
+  const MenuItem({
+    required this.url,
+    required this.icon,
+    required this.title,
+    this.color,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        Provider.of<BoardProvider>(context, listen: false).switchBoard(url);
+        Navigator.pushReplacementNamed(
+          context,
+          '/main',
+          arguments: {
+            'url': url,
+            'title': title,
+          },
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: color ?? Theme.of(context).primaryColor,
+              radius: 16,
+              child: Icon(icon, color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 8.0),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            const Spacer(),
+            const Icon(Icons.arrow_forward_ios, size: 18),
+          ],
         ),
       ),
     );
