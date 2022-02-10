@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meeco_app/backend/api_provider.dart';
+import 'package:meeco_app/constants.dart';
 import 'package:provider/provider.dart';
 
 class LogInForm extends StatefulWidget {
@@ -23,11 +24,12 @@ class _LogInFormState extends State<LogInForm> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '로그인',
             style: TextStyle(
               fontSize: 30.0,
               fontWeight: FontWeight.w800,
+              color: Theme.of(context).primaryColor,
             ),
           ),
           const SizedBox(height: 16),
@@ -36,55 +38,15 @@ class _LogInFormState extends State<LogInForm> {
                 bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Column(
               children: [
-                TextField(
+                LogInTextField(
                   controller: idController,
-                  cursorColor: Colors.black,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    letterSpacing: 0.7,
-                  ),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    hintText: 'ID',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(40.0),
-                      borderSide: const BorderSide(color: Colors.black54),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.black),
-                      borderRadius: BorderRadius.circular(40.0),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
+                  hintText: 'ID',
                 ),
                 const SizedBox(height: 8),
-                TextField(
+                LogInTextField(
                   controller: pwController,
-                  cursorColor: Colors.black,
                   obscureText: true,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    letterSpacing: 0.7,
-                  ),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    hintText: '비밀번호',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(40.0),
-                      borderSide: const BorderSide(color: Colors.black54),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.black),
-                      borderRadius: BorderRadius.circular(40.0),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
+                  hintText: '비밀번호',
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
@@ -94,17 +56,13 @@ class _LogInFormState extends State<LogInForm> {
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
                           apiProvider.loading
-                              ? Colors.grey
-                              : const Color(0xff4c5c84),
+                              ? bgTextFieldDark
+                              : secondaryColor,
                         ),
                         shape:
-                        MaterialStateProperty.all<RoundedRectangleBorder>(
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(40.0),
-                            side: BorderSide(
-                                color: apiProvider.loading
-                                    ? Colors.grey
-                                    : const Color(0xff4c5c84)),
+                            borderRadius: BorderRadius.circular(16.0),
                           ),
                         ),
                       ),
@@ -112,7 +70,7 @@ class _LogInFormState extends State<LogInForm> {
                         if (!apiProvider.loading) {
                           FocusManager.instance.primaryFocus?.unfocus();
                           await apiProvider.logIn(
-                              idController.text, pwController.text);
+                              id: idController.text, pw: pwController.text);
                         }
                         if (apiProvider.isLoggedIn && !apiProvider.loading) {
                           Navigator.pop(context);
@@ -131,6 +89,45 @@ class _LogInFormState extends State<LogInForm> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class LogInTextField extends StatelessWidget {
+  final TextEditingController? controller;
+  final bool obscureText;
+  final String? hintText;
+
+  const LogInTextField(
+      {Key? key, this.controller, this.obscureText = false, this.hintText})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      style: const TextStyle(
+        fontSize: 16.0,
+        letterSpacing: 0.7,
+      ),
+      cursorColor: Theme.of(context).focusColor,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.white30,
+        isDense: true,
+        hintText: hintText,
+        focusedBorder: UnderlineInputBorder(
+          borderRadius: BorderRadius.circular(16.0),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: UnderlineInputBorder(
+          borderRadius: BorderRadius.circular(16.0),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
     );
   }
