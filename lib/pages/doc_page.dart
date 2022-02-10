@@ -276,6 +276,7 @@ class CommentView extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 4),
         BodyView(data: comment.body),
       ],
     );
