@@ -1,11 +1,11 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:meeco_app/backend/api_provider.dart';
 import 'package:meeco_app/backend/data_model/board_item.dart';
 import 'package:meeco_app/backend/doc_provider.dart';
 import 'package:meeco_app/backend/data_model/document.dart';
+import 'package:meeco_app/constants.dart';
+import 'package:meeco_app/widgets/custom_circular_progress_indicator.dart';
 import 'package:meeco_app/widgets/log_in_form.dart';
 import 'package:provider/provider.dart';
 
@@ -25,24 +25,8 @@ class _DocPageState extends State<DocPage> {
 
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.black),
-        backgroundColor: const Color(0x78bfbfbf),
-        // const Color(0xff4c5c84),
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          item?.title ?? '제목',
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(color: Colors.transparent),
-          ),
-        ),
+        title: Text(item?.title ?? '제목'),
+        actions: [Container(width: 48)],
       ),
       body: _renderPage(item),
     );
@@ -53,7 +37,7 @@ class _DocPageState extends State<DocPage> {
     final doc = docProvider.doc;
 
     if (docProvider.loading && doc == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CustomCircularProgressIndicator());
     } else if (!docProvider.loading && doc == null) {
       Future.microtask(() => docProvider.fetch());
     } else {
@@ -63,60 +47,30 @@ class _DocPageState extends State<DocPage> {
         children: [
           Text(
             doc!.title,
-            style: const TextStyle(
-              fontSize: 25.0,
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(context).textTheme.headline5,
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              SizedBox(
-                width: 40.0,
-                height: 40.0,
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(300.0),
-                  ),
-                  child: Image.network(doc.author.profileUrl ??
-                      'https://meeco.kr/layouts/colorize02_layout/images/profile.png'),
-                ),
-              ),
-              const SizedBox(width: 8.0),
+              ProfileImage(author: doc.author),
+              const SizedBox(width: 16.0),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     doc.author.nickname,
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.black45,
-                    ),
+                    style: Theme.of(context).textTheme.caption,
                   ),
                   const SizedBox(height: 4.0),
                   Text(
                     doc.time,
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.black45,
-                    ),
+                    style: Theme.of(context).textTheme.caption,
                   ),
                 ],
               )
             ],
           ),
-          Html(
-            data: doc.body,
-            style: {
-              'p': Style(
-                fontSize: const FontSize(16.0),
-              ),
-              "body": Style(
-                margin: EdgeInsets.zero,
-                padding: EdgeInsets.zero,
-              ),
-            },
-          ),
+          BodyView(data: doc.body),
           const SizedBox(height: 12.0),
           Center(child: VoteButton(doc.voteNum)),
           const SizedBox(height: 12.0),
@@ -124,10 +78,9 @@ class _DocPageState extends State<DocPage> {
             children: [
               Text(
                 '댓글 ${doc.commentNum}개',
-                style: const TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
               ),
               const Spacer(),
               IconButton(
@@ -145,6 +98,61 @@ class _DocPageState extends State<DocPage> {
   }
 }
 
+class BodyView extends StatelessWidget {
+  final String data;
+
+  const BodyView({
+    Key? key,
+    required this.data,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Html(
+      data: data,
+      style: {
+        'p': Style(
+          color: Theme.of(context).textTheme.bodyText1!.color,
+          fontSize: FontSize(
+            Theme.of(context).textTheme.bodyText1!.fontSize,
+          ),
+        ),
+        "body": Style(
+          margin: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
+        ),
+      },
+    );
+  }
+}
+
+class ProfileImage extends StatelessWidget {
+  final Author author;
+  final double? size;
+  const ProfileImage({
+    Key? key,
+    required this.author,
+    this.size = 40.0,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(
+          Radius.circular(300.0),
+        ),
+        child: Image.network(
+          author.profileUrl ??
+              'https://meeco.kr/layouts/colorize02_layout/images/profile.png',
+        ),
+      ),
+    );
+  }
+}
+
 class VoteButton extends StatefulWidget {
   final int voteNum;
 
@@ -158,55 +166,57 @@ class _VoteButtonState extends State<VoteButton> {
   @override
   Widget build(BuildContext context) {
     final docProvider = Provider.of<DocProvider>(context);
-    final apiProvider = Provider.of<ApiProvider>(context);
     final isVoted = docProvider.isVoted;
+
     return GestureDetector(
-      onTap: () async {
-        if (!apiProvider.isLoggedIn) {
-          showModalBottomSheet(
-            isScrollControlled: true,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24.0),
-              topRight: Radius.circular(24.0),
-            )),
-            context: context,
-            builder: (_) => const LogInForm(),
-          );
-        } else {
-          return Future.microtask(() => docProvider.vote());
-        }
-      },
+      onTap: _onVote,
       child: Container(
-          width: 84,
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 8.0,
+          ),
           decoration: BoxDecoration(
-            color: isVoted ? Colors.red : Colors.white,
-            border: Border.all(color: Colors.red),
+            color: isVoted ? voteColorLight : Colors.transparent,
+            border: Border.all(color: voteColorLight),
             borderRadius: const BorderRadius.all(
-              Radius.circular(8.0),
+              Radius.circular(16.0),
             ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 isVoted ? Icons.favorite : Icons.favorite_border,
                 size: 20,
-                color: isVoted ? Colors.white : Colors.red,
+                color: isVoted ? Colors.black : voteColorLight,
               ),
               const SizedBox(width: 4),
               Text(
-                docProvider.voteNum.toString(),
+                '${widget.voteNum}',
                 style: TextStyle(
                   fontSize: 20,
-                  color: isVoted ? Colors.white : Colors.red,
+                  color: isVoted ? Colors.black : voteColorLight,
                 ),
               ),
             ],
           )),
     );
+  }
+
+  _onVote() async {
+    final apiProvider = Provider.of<ApiProvider>(context);
+    final docProvider = Provider.of<DocProvider>(context);
+
+    if (!apiProvider.isLoggedIn) {
+      customModalBottomSheet(
+        context: context,
+        builder: (_) => const LogInForm(),
+      );
+    } else {
+      return Future.microtask(() => docProvider.vote());
+    }
   }
 }
 
@@ -220,73 +230,53 @@ class CommentView extends StatelessWidget {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.fromLTRB(
-              (comment.isReply ? 48.0 : 8.0), 8.0, 8.0, 8.0),
+          padding: EdgeInsets.only(
+            left: comment.isReply ? 48.0 : 8.0,
+            right: 8.0,
+            top: 8.0,
+            bottom: 8.0,
+          ),
           decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFEFEFEF)),
-            borderRadius: const BorderRadius.all(
-              Radius.circular(8.0),
-            ),
+            border: Border.all(color: Theme.of(context).dividerColor),
+            borderRadius: const BorderRadius.all(Radius.circular(16.0)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: 30.0,
-                height: 30.0,
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(300.0),
-                  ),
-                  child: Image.network(comment.author.profileUrl ??
-                      'https://meeco.kr/layouts/colorize02_layout/images/profile.png'),
-                ),
-              ),
-              const SizedBox(
-                width: 8,
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(comment.author.nickname),
-                            const Spacer(),
-                            Text(
-                              comment.voteNum.toString(),
-                              style: TextStyle(
-                                color: comment.voteNum >= 4
-                                    ? Colors.red
-                                    : Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8.0),
-                        Html(
-                          data: comment.body,
-                          style: {
-                            'p': Style(
-                              fontSize: const FontSize(16.0),
-                            ),
-                            "body": Style(
-                              margin: EdgeInsets.zero,
-                              padding: EdgeInsets.zero,
-                            ),
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              ProfileImage(author: comment.author, size: 30),
+              const SizedBox(width: 8),
+              Expanded(child: _buildCommentText(context)),
             ],
           ),
         ),
         const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Column _buildCommentText(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              comment.author.nickname,
+              style:
+                  Theme.of(context).textTheme.bodyText1!.copyWith(fontSize: 13),
+            ),
+            const Spacer(),
+            Text(
+              comment.voteNum.toString(),
+              style: TextStyle(
+                color: comment.voteNum >= 4
+                    ? voteColorLight
+                    : Theme.of(context).textTheme.bodyText1!.color,
+              ),
+            ),
+          ],
+        ),
+        BodyView(data: comment.body),
       ],
     );
   }
