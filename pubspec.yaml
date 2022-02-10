@@ -35,6 +35,8 @@ dependencies:
   test:
   pull_to_refresh:
   flutter_html:
+  html_editor_enhanced:
+  dio:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
