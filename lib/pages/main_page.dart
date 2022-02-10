@@ -1,9 +1,7 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:meeco_app/backend/api_provider.dart';
 import 'package:meeco_app/backend/board_provider.dart';
 import 'package:meeco_app/widgets/board_item_view.dart';
+import 'package:meeco_app/widgets/custom_circular_progress_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -27,7 +25,23 @@ class _MainPageState extends State<MainPage> {
     final url = arg!['url']!;
 
     return Scaffold(
-      appBar: _buildAppBar(arg['title']!),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/menu');
+          },
+        ),
+        title: Text(arg['title']!),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle_outlined),
+            onPressed: () {
+              Navigator.pushNamed(context, '/user');
+            },
+          ),
+        ],
+      ),
       body: _renderListView(url),
     );
   }
@@ -37,65 +51,34 @@ class _MainPageState extends State<MainPage> {
     final items = boardProvider.items;
 
     if (boardProvider.loading && items.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CustomCircularProgressIndicator());
     } else {
       return SmartRefresher(
         controller: refreshController,
         onRefresh: _onRefresh,
-        child: ListView.builder(
-            physics: const BouncingScrollPhysics(),
-            itemCount: items.length + 1,
-            itemBuilder: (_, index) {
-              if (index < items.length) {
-                return BoardItemView(item: items[index]);
-              }
+        child: ListView.separated(
+          physics: const BouncingScrollPhysics(),
+          itemCount: items.length + 1,
+          itemBuilder: (_, index) {
+            if (index < items.length) {
+              return BoardItemView(item: items[index]);
+            }
 
-              if (!boardProvider.loading) {
-                Future.microtask(() => boardProvider.fetchItems());
-              }
+            if (!boardProvider.loading) {
+              Future.microtask(() => boardProvider.fetchItems());
+            }
 
-              return const Center(child: CircularProgressIndicator());
-            }),
-      );
-    }
-  }
-
-  _buildAppBar(String title) {
-    final apiProvider = Provider.of<ApiProvider>(context);
-
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.menu),
-        onPressed: () {
-          Navigator.pushReplacementNamed(context, '/menu');
-        },
-      ),
-      iconTheme: const IconThemeData(color: Colors.black),
-      backgroundColor: const Color(0x78bfbfbf),
-      elevation: 0,
-      centerTitle: true,
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      flexibleSpace: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(color: Colors.transparent),
-        ),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.account_circle_outlined),
-          onPressed: () {
-            Navigator.pushNamed(context, '/user');
+            return const Center(child: CustomCircularProgressIndicator());
+          },
+          separatorBuilder: (_, __) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: const Divider(),
+            );
           },
         ),
-      ],
-    );
+      );
+    }
   }
 
   _onRefresh() async {
