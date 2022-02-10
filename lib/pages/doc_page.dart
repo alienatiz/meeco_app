@@ -165,11 +165,21 @@ class VoteButton extends StatefulWidget {
 class _VoteButtonState extends State<VoteButton> {
   @override
   Widget build(BuildContext context) {
+    final apiProvider = Provider.of<ApiProvider>(context);
     final docProvider = Provider.of<DocProvider>(context);
     final isVoted = docProvider.isVoted;
 
     return GestureDetector(
-      onTap: _onVote,
+      onTap: () async {
+        if (!apiProvider.isLoggedIn) {
+          customModalBottomSheet(
+            context: context,
+            builder: (_) => const LogInForm(),
+          );
+        } else {
+          return Future.microtask(() => docProvider.vote());
+        }
+      },
       child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: 16.0,
@@ -194,7 +204,7 @@ class _VoteButtonState extends State<VoteButton> {
               ),
               const SizedBox(width: 4),
               Text(
-                '${widget.voteNum}',
+                '${docProvider.voteNum}',
                 style: TextStyle(
                   fontSize: 20,
                   color: isVoted ? Colors.black : voteColorLight,
@@ -203,20 +213,6 @@ class _VoteButtonState extends State<VoteButton> {
             ],
           )),
     );
-  }
-
-  _onVote() async {
-    final apiProvider = Provider.of<ApiProvider>(context);
-    final docProvider = Provider.of<DocProvider>(context);
-
-    if (!apiProvider.isLoggedIn) {
-      customModalBottomSheet(
-        context: context,
-        builder: (_) => const LogInForm(),
-      );
-    } else {
-      return Future.microtask(() => docProvider.vote());
-    }
   }
 }
 
