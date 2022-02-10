@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meeco_app/backend/api_provider.dart';
+import 'package:meeco_app/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:meeco_app/widgets/log_in_form.dart';
 
@@ -33,15 +34,9 @@ class _UserPageState extends State<UserPage> {
                 ? Center(
                     child: TextButton(
                       onPressed: () {
-                        showModalBottomSheet(
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(24.0),
-                            topRight: Radius.circular(24.0),
-                          )),
+                        customModalBottomSheet(
                           context: context,
-                          builder: (_) => LogInForm(),
+                          builder: (_) => const LogInForm(),
                         );
                       },
                       child: const Text(
@@ -49,13 +44,18 @@ class _UserPageState extends State<UserPage> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
+                          color: secondaryColor,
                         ),
                       ),
                     ),
                   )
                 : _buildLoggedInBody(),
             const SizedBox(height: 8),
-            const Text('앱  설정'),
+            Text('앱  설정',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText1!
+                    .copyWith(fontSize: 13)),
             _buildAppSettingListView(),
             const SizedBox(height: 16),
             if (apiProvider.isLoggedIn)
@@ -103,20 +103,18 @@ class _UserPageState extends State<UserPage> {
   _buildListTile(String title, IconData leading) {
     return ListTile(
       dense: true,
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+      title: Text(title,
+          style: Theme.of(context)
+              .textTheme
+              .bodyText1!
+              .copyWith(fontWeight: FontWeight.w700)),
       leading: Icon(
         leading,
-        color: Colors.black,
+        color: Theme.of(context).textTheme.bodyText1!.color,
       ),
-      trailing: const Icon(
+      trailing: Icon(
         Icons.keyboard_arrow_right,
-        color: Colors.black,
+        color: Theme.of(context).textTheme.bodyText1!.color,
       ),
     );
   }

@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:meeco_app/backend/board_provider.dart';
 import 'package:meeco_app/backend/api_provider.dart';
 import 'package:meeco_app/backend/doc_provider.dart';
+import 'package:meeco_app/constants.dart';
 import 'package:meeco_app/pages/doc_page.dart';
 import 'package:meeco_app/pages/menu_page.dart';
 import 'package:meeco_app/pages/user_page.dart';
+import 'package:meeco_app/pages/write_page.dart';
 import 'package:provider/provider.dart';
 
 import 'package:meeco_app/pages/main_page.dart';
@@ -48,6 +50,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Meeco App',
+      theme: generateTheme(),
+      darkTheme: generateTheme(isDark: true),
+      themeMode: ThemeMode.light,
       home: const MainPage(),
       routes: {
         '/main': (_) => const MainPage(),
@@ -58,6 +63,7 @@ class MyApp extends StatelessWidget {
             ),
         '/menu': (_) => const MenuPage(),
         '/user': (_) => const UserPage(),
+        '/write': (_) => const WritePage(),
       },
     );
   }
