@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:meeco_app/backend/board_provider.dart';
-import 'package:meeco_app/constants.dart';
 import 'package:provider/provider.dart';
 
 class MenuPage extends StatefulWidget {
@@ -197,7 +196,7 @@ class MenuItem extends StatelessWidget {
               radius: 16,
               child: Icon(icon, color: Colors.white, size: 20),
             ),
-            const SizedBox(width: 8.0),
+            const SizedBox(width: 12.0),
             Text(
               title,
               style: Theme.of(context).textTheme.bodyText1!.copyWith(
