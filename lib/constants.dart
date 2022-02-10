@@ -30,6 +30,7 @@ appBarTextStyle(isDark) => TextStyle(
       color: isDark ? textDark : textLight,
       fontWeight: FontWeight.w700,
       fontSize: 20,
+      fontFamily: 'SUIT',
     );
 
 headlineTextStyle(isDark) => TextStyle(
@@ -73,6 +74,7 @@ customModalBottomSheet({
 
 ThemeData generateTheme({isDark = false}) {
   return ThemeData(
+    fontFamily: 'SUIT',
     primaryColor: isDark ? primaryColorDark : primaryColorLight,
     scaffoldBackgroundColor: isDark ? bgDark : bgLight,
     dividerColor: isDark ? textInfoDark : textInfoLight,
