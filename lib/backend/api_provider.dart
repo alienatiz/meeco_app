@@ -12,11 +12,13 @@ import 'package:meeco_app/backend/data_model/document.dart';
 
 class ApiProvider extends ChangeNotifier {
   final CookieJar _cookieJar = CookieJar();
+
   bool isLoggedIn = false;
-  static const String logInUrl = '/index.php?mid=index&act=dispMemberLoginForm';
   bool loading = false;
 
-  Future<void> logIn(String id, String pw) async {
+  Future<void> logIn({required String id, required String pw}) async {
+    const String logInUrl = '/index.php?mid=index&act=dispMemberLoginForm';
+
     if (!isLoggedIn) {
       loading = true;
       notifyListeners();
@@ -28,13 +30,7 @@ class ApiProvider extends ChangeNotifier {
         logInUrl,
         headers: {'x-csrf-token': csrf ?? ''},
         body: {
-          'error_return_url': logInUrl,
-          'mid': 'index',
-          'vid': '',
-          'ruleset': '@login',
-          'success_return_url': 'https://meeco.kr/',
           'act': 'procMemberLogin',
-          'xe_validator_id': 'modules/member/skin/default/login_form/1',
           'user_id': id,
           'password': pw,
           'keep_signed': 'Y',
@@ -62,6 +58,7 @@ class ApiProvider extends ChangeNotifier {
       final greetings = parse(attendPage.body)
           .querySelector('input[name="greetings"]')
           ?.attributes['value'];
+
       final attendAction = await _post('/attendance', body: {
         'error_return_url': '/attendance',
         'vid': '',
@@ -79,13 +76,17 @@ class ApiProvider extends ChangeNotifier {
   }
 
   Future<int?> voteDoc(String url) async {
+    var urlList = url.split('/');
+    final mid = urlList[1];
+    final srl = urlList[2];
+
     var docPage = await _get(url);
     final csrf = _getCsrfToken(docPage);
-    var urlList = url.split('/');
+
     var response = await _post('/', body: {
-      'target_srl': urlList[2].toString(),
-      'cur_mid': urlList[1],
-      'mid': urlList[1],
+      'target_srl': srl,
+      'cur_mid': mid,
+      'mid': mid,
       'module': 'document',
       'act': 'procDocumentVoteUp',
       '_rx_ajax_compat': 'XMLRPC',
@@ -93,21 +94,24 @@ class ApiProvider extends ChangeNotifier {
       'vid': '',
     }, headers: {
       'x-csrf-token': csrf ?? '',
-      // 'x-requested-with': 'XMLHttpRequest',
+      'x-requested-with': 'XMLHttpRequest',
     });
 
-    var jsonBody = jsonDecode(response.body);
-    if (jsonBody['error'] == 0) return jsonBody['voted_count'];
-    return response.statusCode;
+    final jsonResponse = jsonDecode(response.body);
+    if (jsonResponse['error'] == 0) {
+      return jsonResponse['voted_count'];
+    } else {
+      return -1;
+    }
   }
 
   Future<List<BoardItem>> fetchBoard(String board, int page) async {
-    var docList = await _get(
-        "/" + (page == 1 ? board : "index.php?mid=$board&page=$page"));
+    final url = "/" + (page == 1 ? board : "index.php?mid=$board&page=$page");
+    var docList = await _get(url);
+
     var docListBody =
         parse(docList.body).querySelectorAll('table.ldn > tbody > tr').map((e) {
       final numData = e.querySelectorAll("td.num");
-
       var commentNum = e.querySelector("td.title > a.num")?.text.trim();
       commentNum = commentNum?.substring(1, commentNum.length - 1);
 
@@ -123,11 +127,13 @@ class ApiProvider extends ChangeNotifier {
             RegExp('document_srl=[0-9]+').stringMatch(url)!.substring(13);
       }
 
+      final boardName = title?.querySelector('a.boardname');
+
       return BoardItem(
         url ?? '',
         Category(
-          title?.querySelector('a.boardname')?.text ?? '--',
-          title?.querySelector('a.boardname')?.attributes['href'] ?? '--',
+          boardName?.text ?? '--',
+          boardName?.attributes['href'] ?? '--',
         ),
         title?.querySelector('span')?.text.trim() ?? title?.text.trim() ?? '제목',
         e.querySelector('td.author > a')?.text ?? '작성자',
@@ -178,11 +184,15 @@ class ApiProvider extends ChangeNotifier {
       final cmtBody = e.querySelector('div.cmt-el-body');
       final sticker =
           cmtBody?.querySelector('div.xe_content > a[style*="img.meeco.kr"]');
+      final cmtContent = cmtBody?.querySelector('div.xe_content');
+      String? bodyWithSticker;
       if (sticker != null) {
-        sticker.innerHtml = '<img class="sticker" src="' +
-            RegExp('https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9(@:%_\\+.~#?&//=]*)')
-                .stringMatch(sticker.attributes['style']!)! +
-            '"></img>';
+        bodyWithSticker = cmtContent!.innerHtml.replaceAll(
+            RegExp('<a .+img.meeco.kr.+></a>'),
+            '<img class="sticker" src="' +
+                RegExp('https://img.meeco.kr/[a-zA-Z0-9./]+')
+                    .stringMatch(sticker.attributes['style']!)! +
+                '" width ="100" height="100"></img>');
       }
 
       return Comment(
@@ -195,13 +205,12 @@ class ApiProvider extends ChangeNotifier {
           commentHeader?.querySelector('a.member')?.text ?? '작성자',
           profileUrl: e.querySelector('img.bPf-img')?.attributes['src'],
         ),
-        sticker != null
-            ? sticker.innerHtml
-            : cmtBody
-                    ?.querySelector('div.xe_content')
-                    ?.innerHtml
-                    .replaceAll('img src="//', 'img src="https://') ??
-                'body',
+        bodyWithSticker ??
+            cmtBody
+                ?.querySelector('div.xe_content')
+                ?.innerHtml
+                .replaceAll('img src="//', 'img src="https://') ??
+            'body',
         int.parse(
             cmtBody?.querySelector('div.cmt-vote > a > span.num')?.text ?? '0'),
         replyTo: commentHeader?.querySelector('span.parent')?.text,
