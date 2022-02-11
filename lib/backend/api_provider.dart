@@ -128,11 +128,12 @@ class ApiProvider extends ChangeNotifier {
       }
 
       final boardName = title?.querySelector('a.boardname');
+      final isNotice = numData[0].text.trim() == "공지";
 
       return BoardItem(
         url ?? '',
         Category(
-          boardName?.text ?? '--',
+          isNotice ? '공지' : boardName?.text ?? '--',
           boardName?.attributes['href'] ?? '--',
         ),
         title?.querySelector('span')?.text.trim() ?? title?.text.trim() ?? '제목',
@@ -145,7 +146,7 @@ class ApiProvider extends ChangeNotifier {
             ? 0
             : int.parse(numData[2].querySelector('span')?.text ?? "0"),
         int.parse(commentNum ?? "0"),
-        isNotice: numData[0].text.trim() == "공지",
+        isNotice: isNotice,
       );
     }).toList();
 
