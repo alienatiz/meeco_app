@@ -37,15 +37,3 @@ jobs:
         with:
           name: android-build
           path: ./ExampleApp-SNAPSHOT.apk
-  build_ios:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v1.4.0
-        with:
-          channel: 'stable'
-      - name: Install dependencies
-        run: flutter pub get
-      - name: Build IOS
-        run: flutter build ios --release --no-codesign
