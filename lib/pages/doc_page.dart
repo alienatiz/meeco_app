@@ -26,7 +26,9 @@ class _DocPageState extends State<DocPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(item?.title ?? '제목'),
-        actions: [Container(width: 48)],
+        actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.more_horiz))
+        ],
       ),
       body: _renderPage(item),
     );
@@ -86,12 +88,26 @@ class _DocPageState extends State<DocPage> {
               IconButton(
                 icon: const Icon(Icons.refresh),
                 onPressed: () {},
+                color: textInfoDark,
               ),
             ],
           ),
-          ...?doc.comments?.map((e) {
-            return CommentView(e);
-          }).toList(),
+          ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                if (doc.comments != null) {
+                  return CommentView(doc.comments![index]);
+                } else {
+                  return const SizedBox();
+                }
+              },
+              separatorBuilder: (context, i) {
+                return const Divider(
+                  height: 1,
+                );
+              },
+              itemCount: doc.commentNum),
         ],
       );
     }
@@ -120,6 +136,10 @@ class BodyView extends StatelessWidget {
         "body": Style(
           margin: EdgeInsets.zero,
           padding: EdgeInsets.zero,
+          color: Theme.of(context).textTheme.bodyText1!.color,
+          fontSize: FontSize(
+            Theme.of(context).textTheme.bodyText1!.fontSize,
+          ),
         ),
       },
     );
@@ -227,14 +247,9 @@ class CommentView extends StatelessWidget {
       children: [
         Container(
           padding: EdgeInsets.only(
-            left: comment.isReply ? 48.0 : 8.0,
-            right: 8.0,
-            top: 8.0,
-            bottom: 8.0,
-          ),
-          decoration: BoxDecoration(
-            border: Border.all(color: Theme.of(context).dividerColor),
-            borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+            left: comment.isReply ? 40.0 : 0,
+            top: 16.0,
+            bottom: 16.0,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -263,17 +278,44 @@ class CommentView extends StatelessWidget {
             ),
             const Spacer(),
             Text(
-              comment.voteNum.toString(),
-              style: TextStyle(
-                color: comment.voteNum >= 4
-                    ? voteColorLight
-                    : Theme.of(context).textTheme.bodyText1!.color,
-              ),
+              comment.time.trim(),
+              style: Theme.of(context).textTheme.caption!.copyWith(
+                    fontSize: 11,
+                  ),
             ),
           ],
         ),
         const SizedBox(height: 4),
         BodyView(data: comment.body),
+        const SizedBox(height: 8),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.favorite_border,
+              size: 17,
+              color: voteColorLight,
+            ),
+            const SizedBox(width: 2),
+            Text(
+              comment.voteNum.toString(),
+              style: TextStyle(
+                color: comment.voteNum >= 4
+                    ? voteColorLight
+                    : Theme.of(context).textTheme.bodyText1!.color,
+                fontSize: 17,
+              ),
+            ),
+            const Spacer(),
+            const Icon(
+              Icons.reply_rounded,
+              size: 20,
+              color: textInfoDark,
+            ),
+            const SizedBox(width: 6),
+            const Icon(Icons.more_horiz, size: 20, color: textInfoDark),
+          ],
+        ),
       ],
     );
   }
