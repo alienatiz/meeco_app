@@ -42,7 +42,7 @@ headlineTextStyle(isDark) => TextStyle(
 boardItemTitleTextStyle(isDark) => TextStyle(
       fontSize: 18,
       color: isDark ? textDark : textLight,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w800,
     );
 
 bodyTextStyle(isDark) => TextStyle(
@@ -110,3 +110,19 @@ ThemeData generateTheme({isDark = false}) {
     ),
   );
 }
+
+const categoryColor = {
+  '미니': Color(0xFFA9D6FF),
+  '소식': Color(0xFFADFED4),
+  '음향': Color(0xFFEDB172),
+  '리뷰': Color(0xFFFDA7D3),
+  '대형': Color(0xFF7DE350),
+  '자유': Color(0xFFEFEFF0),
+  '사진': Color(0xFFCBD0FE),
+  '익명': Color(0xFFC3C4C4),
+  '유머': Color(0xFFFDEFCC),
+  '장터': Color(0xFFFDC4B7),
+  '특가': Color(0xFF89B1BA),
+  '홍보': Color(0xFF62D3EC),
+  '공지': secondaryColor,
+};
