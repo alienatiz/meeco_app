@@ -210,7 +210,7 @@ class ApiProvider extends ChangeNotifier {
             cmtBody
                 ?.querySelector('div.xe_content')
                 ?.innerHtml
-                .replaceAll('img src="//', 'img src="https://') ??
+                .replaceAll('src="//', 'src="https://') ??
             'body',
         int.parse(
             cmtBody?.querySelector('div.cmt-vote > a > span.num')?.text ?? '0'),
@@ -231,7 +231,7 @@ class ApiProvider extends ChangeNotifier {
       parsedDoc
               ?.querySelector('div.atc-wrap > div[class^="document"]')
               ?.innerHtml
-              .replaceAll('img src="//', 'img src="https://') ??
+              .replaceAll('src="//', 'src="https://') ??
           'body',
       int.parse(infoUnderTitle?.querySelector('li > span.num')?.text ?? '0'),
       int.parse(
