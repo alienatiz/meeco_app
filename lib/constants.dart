@@ -99,8 +99,15 @@ ThemeData generateTheme({isDark = false}) {
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: isDark ? bgOverlayDark : bgOverlayLight,
       selectedItemColor: isDark ? primaryColorDark : primaryColorLight,
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
+      unselectedItemColor: textInfoDark,
+      selectedLabelStyle: const TextStyle(
+        fontSize: 12.0,
+        fontWeight: FontWeight.w700,
+      ),
+      unselectedLabelStyle: const TextStyle(
+        fontSize: 12.0,
+        fontWeight: FontWeight.w400,
+      ),
     ),
     textTheme: TextTheme(
       headline5: headlineTextStyle(isDark),
