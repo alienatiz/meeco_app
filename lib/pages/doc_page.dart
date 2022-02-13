@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:meeco_app/backend/api_provider.dart';
+import 'package:meeco_app/backend/auth_provider.dart';
 import 'package:meeco_app/backend/data_model/board_item.dart';
 import 'package:meeco_app/backend/doc_provider.dart';
 import 'package:meeco_app/backend/data_model/document.dart';
@@ -21,11 +21,11 @@ class _DocPageState extends State<DocPage> {
   Widget build(BuildContext context) {
     final BoardItem? item =
         ModalRoute.of(context)?.settings.arguments as BoardItem;
-    Provider.of<DocProvider>(context, listen: false).url = item?.url;
+    Provider.of<DocProvider>(context, listen: false).url = item!.url;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(item?.title ?? '제목'),
+        title: Text(item.title),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.more_horiz))
         ],
@@ -185,7 +185,7 @@ class VoteButton extends StatefulWidget {
 class _VoteButtonState extends State<VoteButton> {
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<ApiProvider>(context);
+    final apiProvider = Provider.of<AuthProvider>(context);
     final docProvider = Provider.of<DocProvider>(context);
     final isVoted = docProvider.isVoted;
 

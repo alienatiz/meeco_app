@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meeco_app/backend/api_provider.dart';
+import 'package:meeco_app/backend/auth_provider.dart';
 import 'package:meeco_app/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +16,7 @@ class _LogInFormState extends State<LogInForm> {
 
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<ApiProvider>(context);
+    final apiProvider = Provider.of<AuthProvider>(context);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(32.0),
