@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:meeco_app/backend/auth_provider.dart';
+import 'package:meeco_app/backend/client.dart';
 import 'package:meeco_app/backend/data_model/board_item.dart';
 import 'package:meeco_app/backend/doc_provider.dart';
 import 'package:meeco_app/backend/data_model/document.dart';
@@ -185,13 +186,13 @@ class VoteButton extends StatefulWidget {
 class _VoteButtonState extends State<VoteButton> {
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<AuthProvider>(context);
+    final client = Provider.of<Client>(context);
     final docProvider = Provider.of<DocProvider>(context);
     final isVoted = docProvider.isVoted;
 
     return GestureDetector(
       onTap: () async {
-        if (!apiProvider.isLoggedIn) {
+        if (!client.isLoggedIn) {
           customModalBottomSheet(
             context: context,
             builder: (_) => const LogInForm(),

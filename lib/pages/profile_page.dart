@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meeco_app/backend/auth_provider.dart';
+import 'package:meeco_app/backend/client.dart';
 import 'package:meeco_app/backend/theme_provider.dart';
 import 'package:meeco_app/constants.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +16,8 @@ class UserPage extends StatefulWidget {
 class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<AuthProvider>(context);
+    final client = Provider.of<Client>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -23,7 +25,7 @@ class _UserPageState extends State<UserPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          !apiProvider.isLoggedIn
+          !client.isLoggedIn
               ? Center(
                   child: TextButton(
                     onPressed: () {
@@ -46,7 +48,7 @@ class _UserPageState extends State<UserPage> {
           const SizedBox(height: 8),
           _buildAppSettingListView(),
           const SizedBox(height: 16),
-          if (apiProvider.isLoggedIn)
+          if (client.isLoggedIn)
             Center(
               child: TextButton(
                 child: const Text(
@@ -57,7 +59,7 @@ class _UserPageState extends State<UserPage> {
                   ),
                 ),
                 onPressed: () async {
-                  await apiProvider.logOut();
+                  await authProvider.logOut();
                 },
               ),
             ),
@@ -84,13 +86,14 @@ class _UserPageState extends State<UserPage> {
       children: [
         Column(
           children: [
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 '테마',
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
+                  color: Theme.of(context).textTheme.bodyText1!.color,
                 ),
               ),
             ),

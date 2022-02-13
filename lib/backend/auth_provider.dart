@@ -3,16 +3,15 @@ import 'package:meeco_app/backend/client.dart';
 
 class AuthProvider extends ChangeNotifier {
   late final Client client;
-  late final bool isLoggedIn;
 
-  AuthProvider({required this.client}) : isLoggedIn = client.isLoggedIn;
+  AuthProvider({required this.client});
 
   bool loading = false;
 
   Future<void> logIn({required String id, required String pw}) async {
     const String logInUrl = '/index.php?mid=index&act=dispMemberLoginForm';
 
-    if (!isLoggedIn) {
+    if (!client.isLoggedIn) {
       loading = true;
       notifyListeners();
 

@@ -23,12 +23,13 @@ class Client extends ChangeNotifier {
     if (needsToken) csrfToken = await _getToken(query);
     var req = await http.get(Uri.parse(baseUrl + query), headers: {
       ...?headers,
+      'cookie': _cookieJar.toString(),
       if (needsToken) 'X-CSRF-Token': csrfToken!,
     });
 
     _cookieJar.saveCookies(req.headers['set-cookie']);
     SharedPreferences.getInstance().then((prefs) {
-      prefs.setString('cookies', _cookieJar.cookies.toString());
+      prefs.setString('cookies', _cookieJar.toString());
       prefs.setBool('isLoggedIn', isLoggedIn);
     });
     isLoggedIn = _cookieJar.cookies?['rx_autologin'] != null;
@@ -48,6 +49,7 @@ class Client extends ChangeNotifier {
 
     var req = await http.post(Uri.parse(baseUrl + query), headers: {
       ...?headers,
+      'cookie': _cookieJar.toString(),
       if (needsToken) 'X-CSRF-Token': csrfToken!,
     }, body: {
       ...body,
@@ -56,7 +58,7 @@ class Client extends ChangeNotifier {
 
     _cookieJar.saveCookies(req.headers['set-cookie']);
     SharedPreferences.getInstance().then((prefs) {
-      prefs.setString('cookies', _cookieJar.cookies.toString());
+      prefs.setString('cookies', _cookieJar.toString());
       prefs.setBool('isLoggedIn', isLoggedIn);
     });
     isLoggedIn = _cookieJar.cookies?['rx_autologin'] != null;
@@ -66,7 +68,7 @@ class Client extends ChangeNotifier {
   }
 
   Future<String> _getToken(String query) async {
-    final req = await http.get(Uri.parse(baseUrl + query));
+    final req = await get(query: query);
     String? csrfToken = parse(req.body)
         .querySelector('meta[name="csrf-token"]')
         ?.attributes['content'];

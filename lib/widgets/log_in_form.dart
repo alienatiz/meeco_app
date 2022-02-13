@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meeco_app/backend/auth_provider.dart';
+import 'package:meeco_app/backend/client.dart';
 import 'package:meeco_app/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +17,8 @@ class _LogInFormState extends State<LogInForm> {
 
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<AuthProvider>(context);
+    final client = Provider.of<Client>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(32.0),
@@ -55,7 +57,7 @@ class _LogInFormState extends State<LogInForm> {
                   child: TextButton(
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
-                          apiProvider.loading
+                          authProvider.loading
                               ? bgTextFieldDark
                               : secondaryColor,
                         ),
@@ -67,12 +69,12 @@ class _LogInFormState extends State<LogInForm> {
                         ),
                       ),
                       onPressed: () async {
-                        if (!apiProvider.loading) {
+                        if (!authProvider.loading) {
                           FocusManager.instance.primaryFocus?.unfocus();
-                          await apiProvider.logIn(
+                          await authProvider.logIn(
                               id: idController.text, pw: pwController.text);
                         }
-                        if (apiProvider.isLoggedIn && !apiProvider.loading) {
+                        if (client.isLoggedIn && !authProvider.loading) {
                           Navigator.pop(context);
                         }
                       },

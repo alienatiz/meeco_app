@@ -41,7 +41,7 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (context) => AuthProvider(
-            client: Provider.of<Client>(context),
+            client: Provider.of<Client>(context, listen: false),
           ),
         ),
         ChangeNotifierProvider(
