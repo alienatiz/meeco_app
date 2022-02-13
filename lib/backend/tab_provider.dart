@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TabProvider extends ChangeNotifier {
   int _currentIndex;
@@ -9,6 +10,9 @@ class TabProvider extends ChangeNotifier {
 
   set currentIndex(int index) {
     _currentIndex = index;
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setInt('currentIndex', index);
+    });
     notifyListeners();
   }
 }
