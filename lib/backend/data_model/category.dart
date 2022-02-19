@@ -2,5 +2,5 @@ class Category {
   String name;
   String url;
 
-  Category(this.name, this.url);
+  Category({required this.name, required this.url});
 }

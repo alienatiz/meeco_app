@@ -1,11 +1,9 @@
-import 'package:meeco_app/backend/data_model/category.dart';
-
 class BoardItem {
   String url;
 
   bool isNotice;
 
-  Category category;
+  String categoryText;
   String title;
   String author;
 
@@ -14,15 +12,15 @@ class BoardItem {
   int voteNum;
   int commentNum;
 
-  BoardItem(
-    this.url,
-    this.category,
-    this.title,
-    this.author,
-    this.time,
-    this.viewNum,
-    this.voteNum,
-    this.commentNum, {
+  BoardItem({
+    required this.url,
+    required this.categoryText,
+    required this.title,
+    required this.author,
+    required this.time,
+    required this.viewNum,
+    required this.voteNum,
+    required this.commentNum,
     this.isNotice = false,
   });
 }

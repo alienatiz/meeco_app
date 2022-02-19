@@ -79,7 +79,7 @@ class DocProvider extends ChangeNotifier {
 
     return Document(
       infoUnderTitle?.querySelector('li.num')?.text ?? '--',
-      Category('a', 'aaa'),
+      Category(name: 'a', url: 'aaa'),
       parsedDoc?.querySelector('div.atc-vote-bts > a.up.up_on') != null,
       header?.querySelector('h1.atc-title > a')?.text ?? '제목',
       Author(

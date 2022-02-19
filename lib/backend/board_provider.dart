@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
+import 'package:html/dom.dart' as dom;
 import 'package:meeco_app/backend/client.dart';
 import 'package:meeco_app/backend/data_model/board_item.dart';
-import 'package:meeco_app/backend/data_model/category.dart';
 
 class BoardProvider extends ChangeNotifier {
   late final Client client;
@@ -14,63 +14,11 @@ class BoardProvider extends ChangeNotifier {
 
   BoardProvider({required this.client});
 
-  Future<List<BoardItem>> fetchBoard(String board, int page) async {
-    final url = "/" + (page == 1 ? board : "index.php?mid=$board&page=$page");
-    var docList = await client.get(query: url);
-
-    var docListBody =
-        parse(docList.body).querySelectorAll('table.ldn > tbody > tr').map((e) {
-      final numData = e.querySelectorAll("td.num");
-      var commentNum = e.querySelector("td.title > a.num")?.text.trim();
-      commentNum = commentNum?.substring(1, commentNum.length - 1);
-
-      final title = e.querySelector('td.title');
-
-      var url = title?.querySelector("span")?.parentNode?.attributes['href'] ??
-          title?.querySelector('a')?.attributes['href'];
-
-      if (double.tryParse(url?.split('/').last ?? '') == null) {
-        url = '/' +
-            RegExp('mid=[A-Za-z]+').stringMatch(url!)!.substring(4) +
-            '/' +
-            RegExp('document_srl=[0-9]+').stringMatch(url)!.substring(13);
-      }
-
-      final boardName = title?.querySelector('a.boardname');
-      final isNotice = numData[0].text.trim() == "공지";
-
-      return BoardItem(
-        url ?? '',
-        Category(
-          isNotice ? '공지' : boardName?.text ?? '--',
-          boardName?.attributes['href'] ?? '--',
-        ),
-        title?.querySelector('span')?.text.trim() ?? title?.text.trim() ?? '제목',
-        e.querySelector('td.author > a')?.text ?? '작성자',
-        numData[1].text,
-        board == 'PricePlus'
-            ? int.parse(numData[2].querySelector('span')?.text ?? "0")
-            : int.parse(numData[3].querySelector('span')?.text ?? "0"),
-        board == 'PricePlus'
-            ? 0
-            : int.parse(numData[2].querySelector('span')?.text ?? "0"),
-        int.parse(commentNum ?? "0"),
-        isNotice: isNotice,
-      );
-    }).toList();
-
-    if (page > 1) {
-      docListBody = docListBody.where((element) => !element.isNotice).toList();
-    }
-
-    return docListBody;
-  }
-
   fetchItems() async {
     loading = true;
     notifyListeners();
 
-    items.addAll(await fetchBoard(currentBoard, currentPage));
+    items.addAll(await _fetchBoard(currentBoard, currentPage));
     var urlList = items.map((e) => e.url).toSet();
     items.retainWhere((x) => urlList.remove(x.url));
     currentPage++;
@@ -97,5 +45,67 @@ class BoardProvider extends ChangeNotifier {
     currentPage = 1;
     items = [];
     await fetchItems();
+  }
+
+  Future<List<BoardItem>> _fetchBoard(String board, int page) async {
+    final url = "/" + (page == 1 ? board : "index.php?mid=$board&page=$page");
+    var docList = await client.get(query: url);
+
+    var docListBody = parse(docList.body)
+        .querySelectorAll('table.ldn > tbody > tr')
+        .map(_parseBoard)
+        .toList();
+
+    if (page > 1) {
+      docListBody = docListBody.where((element) => !element.isNotice).toList();
+    }
+
+    return docListBody;
+  }
+
+  BoardItem _parseBoard(dom.Element el) {
+    final String? categoryText = _getInnerText(el, 'td.title > a.boardname');
+    final String? url = _replaceUrl(
+      el.querySelector('td.title > a.title_a')?.attributes['href'] ?? '/',
+    );
+    final String? title = _getInnerText(el, 'td.title > a.title_a > span');
+    final int commentNum = int.parse(
+        _getInnerText(el, 'td.title > a[title="Replies"]')
+                ?.replaceAll(RegExp('[\\[\\]]'), '') ??
+            '0');
+    // final memberSrl = element.querySelector('td.author > a')?.className ?? '0';
+    final String? author = _getInnerText(el, 'td.author > a');
+    final numData =
+        el.querySelectorAll('td.num').map((e) => e.text.trim()).toList();
+    final String time = numData[1];
+    final int voteNum = int.tryParse(numData[2]) ?? 0;
+    final int viewNum = int.tryParse(numData[3]) ?? 0;
+    final isNotice = numData[0] == "공지";
+
+    return BoardItem(
+      url: url ?? '',
+      categoryText: categoryText ?? '--',
+      title: title ?? '제목',
+      author: author ?? '작성자',
+      time: time,
+      viewNum: viewNum,
+      voteNum: voteNum,
+      commentNum: commentNum,
+      isNotice: isNotice,
+    );
+  }
+
+  String _replaceUrl(String url) {
+    if (double.tryParse(url.split('/').last) == null) {
+      final urlMatches = RegExp('mid=([A-Za-z]+)/document_srl=([0-9]+)')
+          .allMatches(url)
+          .elementAt(0);
+      return '/${urlMatches.group(1)}/${urlMatches.group(2)}';
+    }
+    return url;
+  }
+
+  String? _getInnerText(dom.Element element, String query) {
+    return element.querySelector(query)?.text.trim();
   }
 }
