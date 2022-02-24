@@ -26,7 +26,7 @@ class BoardItemView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CategoryView(item.category.name),
+                  CategoryView(item.categoryText),
                   const Spacer(),
                   Text(
                     item.time.trim(),
@@ -88,7 +88,7 @@ class BoardItemView extends StatelessWidget {
         width: MediaQuery.of(context).size.width,
         child: Row(
           children: [
-            CategoryView(item.category.name),
+            CategoryView(item.categoryText),
             const SizedBox(width: 8),
             Expanded(
               child: Text(

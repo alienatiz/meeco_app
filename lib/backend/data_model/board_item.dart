@@ -55,14 +55,14 @@ class BoardItem {
     );
   }
 
-  static bool _getIsNotice(dom.Element element) {
-    return element.text == '공지';
-  }
+  static bool _getIsNotice(dom.Element element) => element.text == '공지';
 
   static Map<String, dynamic> _parseTitle(dom.Element element) {
     final List<dom.Element> children = element.querySelectorAll('a');
 
     final String categoryText = children[0].text;
+    // TODO: URL 파싱 바꿔야 됨. 정규식 써서 바꿔야 됨!!!
+    // TODO: 얘도 함수로 분리하는게 나을듯. 그게 훠얼씬 깔끔해질 것 같다.
     final String url = children[1].attributes['href'] ?? '/';
     final String title = children[1].querySelector('span')?.text ?? '제목';
     late final int commentNum;
@@ -81,13 +81,10 @@ class BoardItem {
     };
   }
 
-  static String _getAuthor(dom.Element element) {
-    return element.querySelector('a')?.text ?? '작성자';
-  }
+  static String _getAuthor(dom.Element element) =>
+      element.querySelector('a')?.text ?? '작성자';
 
-  static String _getTime(dom.Element element) {
-    return element.text;
-  }
+  static String _getTime(dom.Element element) => element.text;
 
   static int _getNum(dom.Element element) {
     final String numString = element.querySelector('span')?.text ?? '0';
