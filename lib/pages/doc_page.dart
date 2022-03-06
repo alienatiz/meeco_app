@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:meeco_app/backend/auth_provider.dart';
 import 'package:meeco_app/backend/client.dart';
 import 'package:meeco_app/backend/data_model/board_item.dart';
+import 'package:meeco_app/backend/data_model/comment.dart';
 import 'package:meeco_app/backend/doc_provider.dart';
-import 'package:meeco_app/backend/data_model/document.dart';
 import 'package:meeco_app/constants.dart';
 import 'package:meeco_app/widgets/custom_circular_progress_indicator.dart';
 import 'package:meeco_app/widgets/log_in_form.dart';
@@ -55,13 +54,13 @@ class _DocPageState extends State<DocPage> {
           const SizedBox(height: 16),
           Row(
             children: [
-              ProfileImage(author: doc.author),
+              ProfileImage(profileImgUrl: doc.profileImgUrl),
               const SizedBox(width: 16.0),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    doc.author.nickname,
+                    doc.author,
                     style: Theme.of(context).textTheme.caption,
                   ),
                   const SizedBox(height: 4.0),
@@ -148,11 +147,11 @@ class BodyView extends StatelessWidget {
 }
 
 class ProfileImage extends StatelessWidget {
-  final Author author;
+  final String? profileImgUrl;
   final double? size;
   const ProfileImage({
     Key? key,
-    required this.author,
+    this.profileImgUrl,
     this.size = 40.0,
   }) : super(key: key);
 
@@ -166,7 +165,7 @@ class ProfileImage extends StatelessWidget {
           Radius.circular(300.0),
         ),
         child: Image.network(
-          author.profileUrl ??
+          profileImgUrl ??
               'https://meeco.kr/layouts/colorize02_layout/images/profile.png',
         ),
       ),
@@ -255,7 +254,7 @@ class CommentView extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProfileImage(author: comment.author, size: 30),
+              ProfileImage(profileImgUrl: comment.profileImgUrl, size: 30),
               const SizedBox(width: 8),
               Expanded(child: _buildCommentText(context)),
             ],
@@ -273,7 +272,7 @@ class CommentView extends StatelessWidget {
         Row(
           children: [
             Text(
-              comment.author.nickname,
+              comment.author,
               style:
                   Theme.of(context).textTheme.bodyText1!.copyWith(fontSize: 13),
             ),
