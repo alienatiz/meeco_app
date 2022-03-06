@@ -60,12 +60,23 @@ class BoardItem {
   static Map<String, dynamic> _parseTitle(dom.Element element) {
     final List<dom.Element> children = element.querySelectorAll('a');
 
-    final String categoryText = children[0].text;
+    late String categoryText;
+    late String url;
+    late String title;
+
+    categoryText = children[0].text;
     // TODO: URL 파싱 바꿔야 됨. 정규식 써서 바꿔야 됨!!!
     // TODO: 얘도 함수로 분리하는게 나을듯. 그게 훠얼씬 깔끔해질 것 같다.
-    final String url = children[1].attributes['href'] ?? '/';
-    final String title = children[1].querySelector('span')?.text ?? '제목';
     late final int commentNum;
+    if (children.length == 1) {
+      categoryText = '공지';
+      url = children[0].attributes['href'] ?? '/';
+      title = children[0].querySelector('span')?.text ?? '제목';
+    } else {
+      url = children[1].attributes['href'] ?? '/';
+      title = children[1].querySelector('span')?.text ?? '제목';
+    }
+
     if (children.length == 3) {
       commentNum =
           int.parse(children[2].text.trim().replaceAll(RegExp('[\\[\\]]'), ''));
