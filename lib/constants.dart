@@ -40,7 +40,7 @@ headlineTextStyle(isDark) => TextStyle(
     );
 
 boardItemTitleTextStyle(isDark) => TextStyle(
-      fontSize: 18,
+      fontSize: 16,
       color: isDark ? textDark : textLight,
       fontWeight: FontWeight.w800,
     );
