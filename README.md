@@ -1,16 +1,31 @@
 # meeco_app
+IT 커뮤니티 [미니기기 코리아](https://meeco.kr/)의 모바일 애플리케이션입니다.
 
-A new Flutter project.
+## 버전 정보
+### 0.1
+- 출시
+- 게시글 표시, 3개의 게시판 지원
 
-## Getting Started
+### 0.2
+- UI 변경
+  - BottomNavigationBar 추가
+  - 폰트([SUIT](https://suun.us/suit)) 변경
+- 앱 상태(최근 탭, 테마) 유지
+- 다크 테마 추가
 
-This project is a starting point for a Flutter application.
+### 0.3 (예정)
+- 출석부 기능 추가
+- 글&댓글 작성 기능
+- 모아보기 게시판 추가
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 추가 예정 기능
+- [ ] 스티커 댓글 작성 기능 추가
+- [ ] 출석 설정 메뉴 추가
+- [ ] Horizontal chip 리스트를 이용한 필터 기능 추가
+- [ ] 광고 집행
+- [ ] 스티커 상점 기능 추가
+- [ ] 관리 게시판 추가
+- [ ] 이미지 업로드 추가
+- [ ] 글&댓글 액션 메뉴 추가
+- [ ] 앱 설정 추가
+- [ ] 알림 기능 추가
